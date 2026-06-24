@@ -1,64 +1,309 @@
-const SPREADSHEET_ID = "1OtygZruxstv-mID3SbLWlS7VUHmkSkF2O_OuHAuZHDc";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Appel — Queerale</title>
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #1a1a22;
+    --border: #2e2e3e;
+    --accent: #c084fc;
+    --accent2: #818cf8;
+    --text: #f1f0f5;
+    --muted: #7c7a8e;
+    --present: #34d399;
+    --absent: #f87171;
+    --justified: #fbbf24;
+    --unknown: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-function doPost(e) {
+  /* ÉCRAN ACCUEIL */
+  #screen-home {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; padding: 2rem;
+    text-align: center;
+  }
+  .logo { font-size: 2.5rem; margin-bottom: .5rem; }
+  .title { font-size: 1.6rem; font-weight: 700; letter-spacing: .02em; }
+  .subtitle { color: var(--muted); margin: .5rem 0 2.5rem; font-size: .95rem; }
+
+  .voice-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; width: 100%; max-width: 360px;
+  }
+  .voice-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 1.4rem 1rem;
+    font-size: 1rem; font-weight: 600; color: var(--text);
+    cursor: pointer; transition: all .18s;
+    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  }
+  .voice-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .voice-btn .icon { font-size: 1.8rem; }
+
+  /* ÉCRAN APPEL */
+  #screen-appel { display: none; }
+  .top-bar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 1rem 1.2rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: .35rem .7rem;
+    color: var(--muted); cursor: pointer; font-size: .85rem;
+  }
+  .back-btn:hover { color: var(--text); border-color: var(--accent); }
+  .top-info { flex: 1; }
+  .top-voice { font-weight: 700; font-size: 1.05rem; }
+  .top-date { font-size: .8rem; color: var(--muted); }
+  .top-count { font-size: .85rem; color: var(--accent); font-weight: 600; }
+
+  .choriste-list { padding: .8rem; display: flex; flex-direction: column; gap: .5rem; }
+
+  .choriste-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: .85rem 1rem;
+    display: flex; align-items: center; gap: .8rem;
+    transition: border-color .15s;
+  }
+  .choriste-name { flex: 1; font-size: .97rem; font-weight: 500; }
+  .status-btns { display: flex; gap: .4rem; }
+
+  .s-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1.5px solid transparent; cursor: pointer;
+    font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); transition: all .15s;
+  }
+  .s-btn:hover { transform: scale(1.1); }
+  .s-btn.active-present   { background: var(--present);   border-color: var(--present); }
+  .s-btn.active-absent    { background: var(--absent);    border-color: var(--absent); }
+  .s-btn.active-justified { background: var(--justified); border-color: var(--justified); }
+  .s-btn.active-unknown   { background: var(--unknown);   border-color: var(--unknown); }
+
+  .choriste-card.done-present   { border-color: var(--present); }
+  .choriste-card.done-absent    { border-color: var(--absent); }
+  .choriste-card.done-justified { border-color: var(--justified); }
+  .choriste-card.done-unknown   { border-color: var(--unknown); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+    padding: .6rem 1rem 0; justify-content: center;
+  }
+  .leg { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .send-bar {
+    position: sticky; bottom: 0;
+    background: var(--bg); border-top: 1px solid var(--border);
+    padding: 1rem 1.2rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .send-info { font-size: .85rem; color: var(--muted); }
+  .send-info strong { color: var(--text); }
+  .send-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 12px;
+    padding: .75rem 1.5rem; color: #fff; font-size: .95rem; font-weight: 700;
+    cursor: pointer; transition: opacity .2s; white-space: nowrap;
+  }
+  .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .send-btn:not(:disabled):hover { opacity: .88; }
+
+  #toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: #1e293b; border: 1px solid var(--border);
+    border-radius: 10px; padding: .7rem 1.2rem;
+    font-size: .9rem; color: var(--text); pointer-events: none;
+    opacity: 0; transition: opacity .3s; white-space: nowrap; z-index: 99;
+  }
+  #toast.show { opacity: 1; }
+
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .7s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div id="screen-home">
+  <div class="logo">🎶</div>
+  <div class="title">Queerale</div>
+  <div class="subtitle">Appel des pupitres</div>
+  <div class="voice-grid">
+    <button class="voice-btn" onclick="startAppel('Soprano')">
+      <span class="icon">🟣</span>Soprano
+    </button>
+    <button class="voice-btn" onclick="startAppel('Alto')">
+      <span class="icon">🔵</span>Alto
+    </button>
+    <button class="voice-btn" onclick="startAppel('Tenor')">
+      <span class="icon">🟢</span>Tenor
+    </button>
+    <button class="voice-btn" onclick="startAppel('Baryton')">
+      <span class="icon">🟡</span>Baryton
+    </button>
+  </div>
+</div>
+
+<div id="screen-appel">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goHome()">← Retour</button>
+    <div class="top-info">
+      <div class="top-voice" id="top-voice">—</div>
+      <div class="top-date" id="top-date">—</div>
+    </div>
+    <div class="top-count" id="top-count">0 / 0</div>
+  </div>
+
+  <div class="legend">
+    <span class="leg"><span class="leg-dot" style="background:var(--present)"></span>Présent·e</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--absent)"></span>Absent·e</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--justified)"></span>Justifié·e</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--unknown)"></span>Sans nouvelles</span>
+  </div>
+
+  <div class="choriste-list" id="choriste-list"></div>
+
+  <div class="send-bar">
+    <div class="send-info">
+      <strong id="count-done">0</strong> saisi·e·s sur <strong id="count-total">0</strong>
+    </div>
+    <button class="send-btn" id="send-btn" onclick="sendAppel()" disabled>
+      Envoyer l'appel
+    </button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxd2zaWu5bBZAf4M6koW8mhK0FlNw_h2DGXkxeb0niMotaGlslbwjHyUmFqtA2r9n3/exec";
+
+let currentVoice = "";
+let statuses = {};
+let names = [];
+
+function today() {
+  return new Date().toISOString().split("T")[0];
+}
+function todayFR() {
+  return new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+}
+
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), duration);
+}
+
+async function startAppel(voice) {
+  currentVoice = voice;
+  statuses = {};
+  names = [];
+
+  document.getElementById("screen-home").style.display = "none";
+  document.getElementById("screen-appel").style.display = "block";
+  document.getElementById("top-voice").textContent = voice;
+  document.getElementById("top-date").textContent = todayFR();
+  document.getElementById("choriste-list").innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted)"><span class="spinner"></span> Chargement…</div>`;
+
   try {
-    const data = JSON.parse(e.postData.contents);
-    const voice = data.voice;       // "Soprano", "Alto", etc.
-    const date  = data.date;        // "2025-06-24"
-    const records = data.records;   // [{ name, status }, ...]
+    const res = await fetch(`${SCRIPT_URL}?voice=${voice}`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    names = data.names;
+    renderList();
+  } catch(e) {
+    document.getElementById("choriste-list").innerHTML = `<div style="text-align:center;padding:3rem;color:var(--absent)">⚠️ Impossible de charger la liste.<br><small>${e.message}</small></div>`;
+  }
+}
 
-    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(voice);
-    if (!sheet) throw new Error("Onglet introuvable : " + voice);
+function renderList() {
+  const list = document.getElementById("choriste-list");
+  list.innerHTML = "";
+  names.forEach(name => {
+    const card = document.createElement("div");
+    card.className = "choriste-card";
+    card.id = `card-${CSS.escape(name)}`;
+    card.innerHTML = `
+      <div class="choriste-name">${name}</div>
+      <div class="status-btns">
+        <button class="s-btn" title="Présent·e"     onclick="setStatus(this,'${name}','present')"   >✅</button>
+        <button class="s-btn" title="Absent·e"      onclick="setStatus(this,'${name}','absent')"    >❌</button>
+        <button class="s-btn" title="Justifié·e"    onclick="setStatus(this,'${name}','justified')" >🟡</button>
+        <button class="s-btn" title="Sans nouvelles" onclick="setStatus(this,'${name}','unknown')"  >❓</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  updateCount();
+}
 
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    let colIndex  = headers.indexOf(date);
+function setStatus(btn, name, status) {
+  statuses[name] = status;
+  const card = document.getElementById(`card-${CSS.escape(name)}`);
+  card.className = "choriste-card done-" + status;
+  card.querySelectorAll(".s-btn").forEach(b => b.className = "s-btn");
+  btn.classList.add("active-" + status);
+  updateCount();
+}
 
-    if (colIndex === -1) {
-      colIndex = sheet.getLastColumn(); // 0-based
-      sheet.getRange(1, colIndex + 1).setValue(date);
-    } else {
-      colIndex; // already 0-based index in headers array
-    }
-    const col = colIndex + 1; // Sheets columns are 1-based
+function updateCount() {
+  const done = Object.keys(statuses).length;
+  const total = names.length;
+  document.getElementById("count-done").textContent = done;
+  document.getElementById("count-total").textContent = total;
+  document.getElementById("top-count").textContent = `${done} / ${total}`;
+  document.getElementById("send-btn").disabled = done === 0;
+}
 
-    const names = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
+function goHome() {
+  document.getElementById("screen-appel").style.display = "none";
+  document.getElementById("screen-home").style.display = "flex";
+}
 
-    records.forEach(r => {
-      const row = names.indexOf(r.name);
-      if (row !== -1) {
-        sheet.getRange(row + 2, col).setValue(r.status);
-      }
+async function sendAppel() {
+  const btn = document.getElementById("send-btn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Envoi…`;
+
+  const records = names
+    .filter(name => statuses[name])
+    .map(name => ({ name, status: statuses[name] }));
+
+  const payload = { voice: currentVoice, date: today(), records };
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+    showToast(`✅ Appel de ${currentVoice} enregistré !`);
+    setTimeout(goHome, 2000);
+  } catch(e) {
+    showToast(`⚠️ Erreur : ${e.message}`, 4000);
+    btn.disabled = false;
+    btn.textContent = "Réessayer";
   }
 }
-
-function doGet(e) {
-  try {
-    const voice = e.parameter.voice;
-    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = ss.getSheetByName(voice);
-    if (!sheet) throw new Error("Onglet introuvable : " + voice);
-
-    const data   = sheet.getDataRange().getValues();
-    const names  = data.slice(1).map(r => r[0]).filter(n => n !== "");
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true, names }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+</script>
+</body>
+</html>
