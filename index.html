@@ -1,0 +1,64 @@
+const SPREADSHEET_ID = "1OtygZruxstv-mID3SbLWlS7VUHmkSkF2O_OuHAuZHDc";
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const voice = data.voice;       // "Soprano", "Alto", etc.
+    const date  = data.date;        // "2025-06-24"
+    const records = data.records;   // [{ name, status }, ...]
+
+    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(voice);
+    if (!sheet) throw new Error("Onglet introuvable : " + voice);
+
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    let colIndex  = headers.indexOf(date);
+
+    if (colIndex === -1) {
+      colIndex = sheet.getLastColumn(); // 0-based
+      sheet.getRange(1, colIndex + 1).setValue(date);
+    } else {
+      colIndex; // already 0-based index in headers array
+    }
+    const col = colIndex + 1; // Sheets columns are 1-based
+
+    const names = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
+
+    records.forEach(r => {
+      const row = names.indexOf(r.name);
+      if (row !== -1) {
+        sheet.getRange(row + 2, col).setValue(r.status);
+      }
+    });
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    const voice = e.parameter.voice;
+    const ss    = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(voice);
+    if (!sheet) throw new Error("Onglet introuvable : " + voice);
+
+    const data   = sheet.getDataRange().getValues();
+    const names  = data.slice(1).map(r => r[0]).filter(n => n !== "");
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, names }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
