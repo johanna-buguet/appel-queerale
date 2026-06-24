@@ -3,20 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Appel — Queerale</title>
+<title>Appel — La Queerale</title>
 <style>
   :root {
-    --bg: #0f0f13;
-    --surface: #1a1a22;
-    --border: #2e2e3e;
-    --accent: #c084fc;
-    --accent2: #818cf8;
-    --text: #f1f0f5;
-    --muted: #7c7a8e;
-    --present: #34d399;
-    --absent: #f87171;
-    --justified: #fbbf24;
-    --unknown: #94a3b8;
+    --bg: #1a0a1e;
+    --surface: #2a1030;
+    --border: #5a2060;
+    --pink: #f472b6;
+    --pink-light: #fce7f3;
+    --lime: #a3e635;
+    --lime-dark: #65a30d;
+    --white: #fdf4ff;
+    --muted: #c084fc;
+    --text: #fdf4ff;
+
+    --present: #a3e635;
+    --present-text: #1a2e05;
+    --prevu: #f472b6;
+    --prevu-text: #4a0020;
+    --autre: #94a3b8;
+    --autre-text: #0f172a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -26,141 +32,205 @@
     min-height: 100vh;
   }
 
-  /* ÉCRAN ACCUEIL */
-  #screen-home {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; min-height: 100vh; padding: 2rem;
+  /* HEADER */
+  .app-header {
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.2rem 1.5rem .8rem;
+    border-bottom: 1px solid var(--border);
+    gap: .8rem;
+  }
+  .app-header img {
+    width: 48px; height: 48px; border-radius: 50%;
+    object-fit: cover;
+  }
+  .app-header .header-title {
+    font-size: 1.3rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--pink), var(--lime));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ACCUEIL */
+  #screen-home { display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem 2rem; }
+  .home-subtitle { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; text-align: center; }
+
+  /* Date répét */
+  .repet-badge {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: .5rem 1rem;
+    font-size: .82rem; color: var(--muted); margin-bottom: 1.8rem;
     text-align: center;
   }
-  .logo { font-size: 2.5rem; margin-bottom: .5rem; }
-  .title { font-size: 1.6rem; font-weight: 700; letter-spacing: .02em; }
-  .subtitle { color: var(--muted); margin: .5rem 0 2.5rem; font-size: .95rem; }
+  .repet-badge strong { color: var(--lime); }
 
   .voice-grid {
     display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1rem; width: 100%; max-width: 360px;
+    gap: 1rem; width: 100%; max-width: 400px;
   }
   .voice-btn {
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 14px; padding: 1.4rem 1rem;
-    font-size: 1rem; font-weight: 600; color: var(--text);
-    cursor: pointer; transition: all .18s;
-    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    font-size: 1rem; font-weight: 700; color: var(--text);
+    cursor: pointer; transition: all .2s;
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: .9rem;
   }
-  .voice-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .voice-btn .icon { font-size: 1.8rem; }
+  .voice-btn:hover { border-color: var(--pink); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(244,114,182,.2); }
+  .voice-btn:focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+  .voice-img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover; margin-bottom: .6rem;
+    background: #2a1030;
+  }
+  .voice-label { font-size: .95rem; }
 
-  /* ÉCRAN APPEL */
+  /* APPEL */
   #screen-appel { display: none; }
   .top-bar {
     position: sticky; top: 0; z-index: 10;
     background: var(--bg); border-bottom: 1px solid var(--border);
-    padding: 1rem 1.2rem;
+    padding: .8rem 1.2rem;
     display: flex; align-items: center; gap: .8rem;
   }
   .back-btn {
     background: none; border: 1px solid var(--border);
     border-radius: 8px; padding: .35rem .7rem;
     color: var(--muted); cursor: pointer; font-size: .85rem;
+    transition: all .15s;
   }
-  .back-btn:hover { color: var(--text); border-color: var(--accent); }
+  .back-btn:hover { color: var(--text); border-color: var(--pink); }
+  .back-btn:focus-visible { outline: 3px solid var(--lime); }
   .top-info { flex: 1; }
-  .top-voice { font-weight: 700; font-size: 1.05rem; }
-  .top-date { font-size: .8rem; color: var(--muted); }
-  .top-count { font-size: .85rem; color: var(--accent); font-weight: 600; }
+  .top-voice { font-weight: 800; font-size: 1.05rem;
+    background: linear-gradient(135deg, var(--pink), var(--lime));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .top-date { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+  .top-count { font-size: .85rem; color: var(--lime); font-weight: 700; }
 
-  .choriste-list { padding: .8rem; display: flex; flex-direction: column; gap: .5rem; }
+  /* LÉGENDE */
+  .legend {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+    padding: .7rem 1rem; justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .leg {
+    font-size: .75rem; display: flex; align-items: center; gap: .3rem;
+    background: var(--surface); border-radius: 20px; padding: .25rem .6rem;
+    color: var(--text);
+  }
+  .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+  /* LISTE */
+  .choriste-list { padding: .7rem; display: flex; flex-direction: column; gap: .45rem; }
 
   .choriste-card {
     background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 12px; padding: .85rem 1rem;
-    display: flex; align-items: center; gap: .8rem;
+    border-radius: 12px; padding: .75rem .9rem;
+    display: flex; align-items: center; gap: .7rem;
     transition: border-color .15s;
   }
-  .choriste-name { flex: 1; font-size: .97rem; font-weight: 500; }
-  .status-btns { display: flex; gap: .4rem; }
+  .choriste-name { flex: 1; font-size: .95rem; font-weight: 500; }
+  .status-btns { display: flex; gap: .35rem; }
 
   .s-btn {
-    width: 36px; height: 36px; border-radius: 8px;
-    border: 1.5px solid transparent; cursor: pointer;
-    font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
-    background: var(--bg); transition: all .15s;
+    border-radius: 8px; border: 1.5px solid var(--border);
+    cursor: pointer; font-size: .72rem; font-weight: 700;
+    padding: .3rem .45rem; background: var(--bg);
+    color: var(--muted); transition: all .15s; white-space: nowrap;
+    line-height: 1.2;
   }
-  .s-btn:hover { transform: scale(1.1); }
-  .s-btn.active-present   { background: var(--present);   border-color: var(--present); }
-  .s-btn.active-absent    { background: var(--absent);    border-color: var(--absent); }
-  .s-btn.active-justified { background: var(--justified); border-color: var(--justified); }
-  .s-btn.active-unknown   { background: var(--unknown);   border-color: var(--unknown); }
+  .s-btn:hover { transform: scale(1.05); border-color: var(--pink); color: var(--text); }
+  .s-btn:focus-visible { outline: 2px solid var(--lime); }
 
-  .choriste-card.done-present   { border-color: var(--present); }
-  .choriste-card.done-absent    { border-color: var(--absent); }
-  .choriste-card.done-justified { border-color: var(--justified); }
-  .choriste-card.done-unknown   { border-color: var(--unknown); }
+  .s-btn.active-present  { background: var(--present);  border-color: var(--present);  color: var(--present-text); }
+  .s-btn.active-prevu    { background: var(--prevu);    border-color: var(--prevu);    color: var(--prevu-text); }
+  .s-btn.active-autre    { background: var(--autre);    border-color: var(--autre);    color: var(--autre-text); }
 
-  .legend {
-    display: flex; flex-wrap: wrap; gap: .5rem;
-    padding: .6rem 1rem 0; justify-content: center;
+  .choriste-card.done-present  { border-color: var(--present); }
+  .choriste-card.done-prevu    { border-color: var(--prevu); }
+  .choriste-card.done-autre    { border-color: var(--autre); }
+
+  /* NOTE PRÉ-REMPLISSAGE */
+  .prefill-note {
+    margin: .5rem .7rem 0;
+    background: rgba(163,230,53,.08); border: 1px solid rgba(163,230,53,.25);
+    border-radius: 10px; padding: .6rem .9rem;
+    font-size: .8rem; color: var(--lime);
+    display: flex; align-items: center; gap: .5rem;
   }
-  .leg { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
-  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
 
+  /* BARRE ENVOI */
   .send-bar {
     position: sticky; bottom: 0;
     background: var(--bg); border-top: 1px solid var(--border);
-    padding: 1rem 1.2rem;
+    padding: .9rem 1.2rem;
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   }
-  .send-info { font-size: .85rem; color: var(--muted); }
+  .send-info { font-size: .82rem; color: var(--muted); line-height: 1.4; }
   .send-info strong { color: var(--text); }
   .send-btn {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background: linear-gradient(135deg, var(--pink), #a855f7);
     border: none; border-radius: 12px;
-    padding: .75rem 1.5rem; color: #fff; font-size: .95rem; font-weight: 700;
+    padding: .75rem 1.4rem; color: #fff; font-size: .92rem; font-weight: 800;
     cursor: pointer; transition: opacity .2s; white-space: nowrap;
   }
-  .send-btn:disabled { opacity: .4; cursor: not-allowed; }
-  .send-btn:not(:disabled):hover { opacity: .88; }
+  .send-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .send-btn:not(:disabled):hover { opacity: .85; }
+  .send-btn:focus-visible { outline: 3px solid var(--lime); }
 
+  /* TOAST */
   #toast {
-    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
-    background: #1e293b; border: 1px solid var(--border);
+    position: fixed; bottom: 5.5rem; left: 50%; transform: translateX(-50%);
+    background: #2a1030; border: 1px solid var(--pink);
     border-radius: 10px; padding: .7rem 1.2rem;
-    font-size: .9rem; color: var(--text); pointer-events: none;
+    font-size: .88rem; color: var(--text); pointer-events: none;
     opacity: 0; transition: opacity .3s; white-space: nowrap; z-index: 99;
   }
   #toast.show { opacity: 1; }
 
   .spinner {
-    display: inline-block; width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,.3);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin .7s linear infinite; vertical-align: middle;
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+    border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
+<!-- HEADER commun -->
+<header class="app-header">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Test-Logo.svg/200px-Test-Logo.svg.png"
+       alt="Logo La Queerale" id="logo-img">
+  <span class="header-title">La Queerale</span>
+</header>
+
+<!-- ACCUEIL -->
 <div id="screen-home">
-  <div class="logo">🎶</div>
-  <div class="title">Queerale</div>
-  <div class="subtitle">Appel des pupitres</div>
+  <p class="home-subtitle">Appel des pupitres</p>
+  <div class="repet-badge">Prochaine répétition : <strong id="next-repet">—</strong></div>
   <div class="voice-grid">
-    <button class="voice-btn" onclick="startAppel('Soprano')">
-      <span class="icon">🟣</span>Soprano
+    <button class="voice-btn" onclick="startAppel('Soprano')" aria-label="Faire l'appel Soprano">
+      <img class="voice-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Single_apple.png/200px-Single_apple.png" alt="Soprano">
+      <span class="voice-label">Soprano</span>
     </button>
-    <button class="voice-btn" onclick="startAppel('Alto')">
-      <span class="icon">🔵</span>Alto
+    <button class="voice-btn" onclick="startAppel('Alto')" aria-label="Faire l'appel Alto">
+      <img class="voice-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Forrest_Hill_Farms_Goat.jpg/200px-Forrest_Hill_Farms_Goat.jpg" alt="Alto">
+      <span class="voice-label">Alto</span>
     </button>
-    <button class="voice-btn" onclick="startAppel('Tenor')">
-      <span class="icon">🟢</span>Tenor
+    <button class="voice-btn" onclick="startAppel('Tenor')" aria-label="Faire l'appel Tenor">
+      <img class="voice-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Baby_goat_at_Salinas_Pueblo_Missions_NM.jpg/200px-Baby_goat_at_Salinas_Pueblo_Missions_NM.jpg" alt="Tenor">
+      <span class="voice-label">Tenor</span>
     </button>
-    <button class="voice-btn" onclick="startAppel('Baryton')">
-      <span class="icon">🟡</span>Baryton
+    <button class="voice-btn" onclick="startAppel('Baryton')" aria-label="Faire l'appel Baryton">
+      <img class="voice-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Boer_goat_buck_and_doe.jpg/200px-Boer_goat_buck_and_doe.jpg" alt="Baryton">
+      <span class="voice-label">Baryton</span>
     </button>
   </div>
 </div>
 
+<!-- APPEL -->
 <div id="screen-appel">
   <div class="top-bar">
     <button class="back-btn" onclick="goHome()">← Retour</button>
@@ -173,16 +243,19 @@
 
   <div class="legend">
     <span class="leg"><span class="leg-dot" style="background:var(--present)"></span>Présent·e</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--absent)"></span>Absent·e</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--justified)"></span>Justifié·e</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--unknown)"></span>Sans nouvelles</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--prevu)"></span>Absent prévu</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--autre)"></span>Autre</span>
+  </div>
+
+  <div id="prefill-banner" class="prefill-note" style="display:none">
+    📋 Pré-remplissage — répétition <strong id="prefill-date">—</strong>. Modifiable jusqu'au soir J.
   </div>
 
   <div class="choriste-list" id="choriste-list"></div>
 
   <div class="send-bar">
     <div class="send-info">
-      <strong id="count-done">0</strong> saisi·e·s sur <strong id="count-total">0</strong>
+      <strong id="count-done">0</strong> / <strong id="count-total">0</strong> saisi·e·s
     </div>
     <button class="send-btn" id="send-btn" onclick="sendAppel()" disabled>
       Envoyer l'appel
@@ -199,12 +272,36 @@ let currentVoice = "";
 let statuses = {};
 let names = [];
 
-function today() {
-  return new Date().toISOString().split("T")[0];
+// Calcule la date du prochain lundi (ou lundi en cours si on est lundi)
+function getNextMonday() {
+  const now = new Date();
+  const day = now.getDay(); // 0=dim, 1=lun...
+  const diff = day === 1 ? 0 : (8 - day) % 7 || 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  return monday;
 }
-function todayFR() {
-  return new Date().toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+function formatISO(d) {
+  return d.toISOString().split("T")[0];
 }
+function formatFR(d) {
+  return d.toLocaleDateString("fr-FR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+}
+
+function isToday(d) {
+  const now = new Date();
+  return d.toDateString() === now.toDateString();
+}
+
+// Init date badge accueil
+const nextMonday = getNextMonday();
+document.getElementById("next-repet").textContent = formatFR(nextMonday);
+
+// Afficher bannière pré-remplissage si pas encore lundi
+const prefillBanner = document.getElementById("prefill-banner");
+const prefillDateEl = document.getElementById("prefill-date");
+prefillDateEl.textContent = formatFR(nextMonday);
 
 function showToast(msg, duration = 2800) {
   const t = document.getElementById("toast");
@@ -221,8 +318,13 @@ async function startAppel(voice) {
   document.getElementById("screen-home").style.display = "none";
   document.getElementById("screen-appel").style.display = "block";
   document.getElementById("top-voice").textContent = voice;
-  document.getElementById("top-date").textContent = todayFR();
-  document.getElementById("choriste-list").innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted)"><span class="spinner"></span> Chargement…</div>`;
+  document.getElementById("top-date").textContent = formatFR(nextMonday);
+
+  // Bannière pré-remplissage si pas lundi
+  prefillBanner.style.display = isToday(nextMonday) ? "none" : "flex";
+
+  document.getElementById("choriste-list").innerHTML =
+    `<div style="text-align:center;padding:3rem;color:var(--muted)"><span class="spinner"></span> Chargement…</div>`;
 
   try {
     const res = await fetch(`${SCRIPT_URL}?voice=${voice}`);
@@ -231,7 +333,8 @@ async function startAppel(voice) {
     names = data.names;
     renderList();
   } catch(e) {
-    document.getElementById("choriste-list").innerHTML = `<div style="text-align:center;padding:3rem;color:var(--absent)">⚠️ Impossible de charger la liste.<br><small>${e.message}</small></div>`;
+    document.getElementById("choriste-list").innerHTML =
+      `<div style="text-align:center;padding:3rem;color:var(--prevu)">⚠️ Impossible de charger la liste.<br><small>${e.message}</small></div>`;
   }
 }
 
@@ -239,16 +342,16 @@ function renderList() {
   const list = document.getElementById("choriste-list");
   list.innerHTML = "";
   names.forEach(name => {
+    const safe = name.replace(/'/g, "\\'");
     const card = document.createElement("div");
     card.className = "choriste-card";
     card.id = `card-${CSS.escape(name)}`;
     card.innerHTML = `
       <div class="choriste-name">${name}</div>
       <div class="status-btns">
-        <button class="s-btn" title="Présent·e"     onclick="setStatus(this,'${name}','present')"   >✅</button>
-        <button class="s-btn" title="Absent·e"      onclick="setStatus(this,'${name}','absent')"    >❌</button>
-        <button class="s-btn" title="Justifié·e"    onclick="setStatus(this,'${name}','justified')" >🟡</button>
-        <button class="s-btn" title="Sans nouvelles" onclick="setStatus(this,'${name}','unknown')"  >❓</button>
+        <button class="s-btn" onclick="setStatus(this,'${safe}','present')">Présent·e</button>
+        <button class="s-btn" onclick="setStatus(this,'${safe}','prevu')">Absent prévu</button>
+        <button class="s-btn" onclick="setStatus(this,'${safe}','autre')">Autre</button>
       </div>`;
     list.appendChild(card);
   });
@@ -284,20 +387,21 @@ async function sendAppel() {
   btn.innerHTML = `<span class="spinner"></span> Envoi…`;
 
   const records = names
-    .filter(name => statuses[name])
-    .map(name => ({ name, status: statuses[name] }));
+    .filter(n => statuses[n])
+    .map(n => ({ name: n, status: statuses[n] }));
 
-  const payload = { voice: currentVoice, date: today(), records };
+  const payload = {
+    voice: currentVoice,
+    date: formatISO(nextMonday),
+    records
+  };
 
   try {
-    const res = await fetch(SCRIPT_URL, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
-    showToast(`✅ Appel de ${currentVoice} enregistré !`);
-    setTimeout(goHome, 2000);
+    showToast(`✅ Appel ${currentVoice} enregistré pour le ${formatFR(nextMonday)} !`);
+    setTimeout(goHome, 2500);
   } catch(e) {
     showToast(`⚠️ Erreur : ${e.message}`, 4000);
     btn.disabled = false;
